@@ -31,6 +31,18 @@ test('wrapping', function(t) {
   });
 });
 
+test('method', function(t) {
+  t.plan(1);
+  t.timeoutAfter(10000);
+
+  var obj = { foo: 'bar' };
+  obj.f = throttle(function() {
+    t.equal(this.foo, 'bar');
+  }, 1, 1000);
+
+  obj.f();
+});
+
 test('simulate', function(t) {
   var THROTTLE_COUNT = 10;
   var THROTTLE_WINDOW = 0.1;
