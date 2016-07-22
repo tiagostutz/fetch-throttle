@@ -9,25 +9,25 @@ test('wrapping', function(t) {
   t.timeoutAfter(10000);
   
   // Wrap a function returning a value.
-  throttle(function() {
-    return 123;
-  }, 1, 1000)().then((value) => {
-    t.equal(value, 123);
+  throttle(function(a, b) {
+    return a + b;
+  }, 1, 1000)('foo', 'bar').then((value) => {
+    t.equal(value, 'foobar');
   });
 
   // Wrap a function returning a Promise that resolves.
-  throttle(function() {
+  throttle(function(value) {
     console.log('returning Promise.resolve');
-    return Promise.resolve(123);
-  }, 1, 1000)().then((value) => {
-    t.equal(value, 123);
+    return Promise.resolve(value);
+  }, 1, 1000)('foo').then((value) => {
+    t.equal(value, 'foo');
   });
 
   // Wrap a function returning a Promise that rejects.
-  throttle(function() {
-    return Promise.reject('error message');
-  }, 1, 1000)().catch((error) => {
-    t.equal(error, 'error message');
+  throttle(function(value) {
+    return Promise.reject(value);
+  }, 1, 1000)('foo').catch((error) => {
+    t.equal(error, 'foo');
   });
 });
 
@@ -35,6 +35,7 @@ test('method', function(t) {
   t.plan(1);
   t.timeoutAfter(10000);
 
+  // Wrap a method.
   var obj = { foo: 'bar' };
   obj.f = throttle(function() {
     t.equal(this.foo, 'bar');
