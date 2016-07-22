@@ -4,23 +4,31 @@ var throttle = require('..');
 
 var test = require('tape');
 
-test('basic operation', function(t) {
-  var N = 10;
-  t.plan(N);
+test('wrapping', function(t) {
+  t.plan(3);
   t.timeoutAfter(10000);
-
-  var start = Date.now();
   
-  var f = throttle(function(a) {
-    return new Promise(function(resolve, reject) {
-      console.log('elapsed ' + a + ': ' + (Date.now() - start));
-      t.assert(true);
-      resolve();
-    });
-  }, 3, 1000);
+  // Wrap a function returning a value.
+  throttle(function() {
+    return 123;
+  }, 1, 1000)().then((value) => {
+    t.equal(value, 123);
+  });
 
-  for (var i = 0; i < N; ++i)
-    f(i);
+  // Wrap a function returning a Promise that resolves.
+  throttle(function() {
+    console.log('returning Promise.resolve');
+    return Promise.resolve(123);
+  }, 1, 1000)().then((value) => {
+    t.equal(value, 123);
+  });
+
+  // Wrap a function returning a Promise that rejects.
+  throttle(function() {
+    return Promise.reject('error message');
+  }, 1, 1000)().catch((error) => {
+    t.equal(error, 'error message');
+  });
 });
 
 test('simulate', function(t) {
