@@ -22,9 +22,13 @@ module.exports = function(f, calls, milliseconds) {
       var request = queue.shift();
       ++inflight;
       
-      // Call the deferred function, fulfilling the Promise with
-      // whatever results and logging the completion time.
-      f.apply(request.this, request.arguments).then((result) => {
+      // Call the deferred function, fulfilling the wrapper Promise
+      // with whatever results and logging the completion time.
+      var p = f.apply(request.this, request.arguments);
+      if (!(p instanceof Object) || !(typeof p.then === 'function'))
+        throw new Error('throttled function does not return a Promise');
+      
+      p.then((result) => {
         request.resolve(result);
       }, (error) => {
         request.reject(error);
@@ -32,14 +36,18 @@ module.exports = function(f, calls, milliseconds) {
         --inflight;
         complete.push(Date.now());
 
-        if (queue.length && complete.length === 1)
-          setTimeout(milliseconds, processQueue);
+        if (queue.length && complete.length === 1) {
+          // console.log('timeout in ' + milliseconds);
+          setTimeout(processQueue, milliseconds);
+        }
       });
     }
 
     // Check the queue on the next expiration.
-    if (queue.length && complete.length)
-      setTimeout(complete[0] + milliseconds - now, processQueue);
+    if (queue.length && complete.length) {
+      // console.log('timeout in ' + (complete[0] + milliseconds - now));
+      setTimeout(processQueue, complete[0] + milliseconds - now);
+    }
   };
   
   return function() {
