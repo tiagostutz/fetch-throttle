@@ -1,9 +1,14 @@
-// The exported function takes a function returning a Promise
-// (e.g. fetch) and returns a function that automatically
-// delays calls to the original function such that the
-// rate is kept below the specified number of calls in the
-// specified number of milliseconds.
+var assert = require('assert');
+
+// The exported function takes as input a function and returns a
+// function returning a Promise that automatically delays calls to the
+// original function such that the rate is kept below the specified
+// number of calls in the specified number of milliseconds.
 module.exports = function(f, calls, milliseconds) {
+  assert(f instanceof Function);
+  assert(typeof calls === 'number');
+  assert(typeof milliseconds === 'number');
+  
   var queue = [];
   var complete = [];
   var inflight = 0;
@@ -25,10 +30,7 @@ module.exports = function(f, calls, milliseconds) {
       // Call the deferred function, fulfilling the wrapper Promise
       // with whatever results and logging the completion time.
       var p = f.apply(request.this, request.arguments);
-      if (!(p instanceof Object) || !(typeof p.then === 'function'))
-        throw new Error('throttled function does not return a Promise');
-      
-      p.then((result) => {
+      Promise.resolve(p).then((result) => {
         request.resolve(result);
       }, (error) => {
         request.reject(error);
