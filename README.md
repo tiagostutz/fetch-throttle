@@ -7,10 +7,10 @@ APIs. For example:
 
     var throttle = require('promise-throttle');
     
-    var throttledFetch = throttle(fetch, 5, 1000);
-    fetch('http://rest.example.com/').then(...);
+    var f = throttle(fetch, 5, 1000);
+    f('http://rest.example.com/').then(...);
 
-Calling the wrapper function (`throttledFetch()`) will defer calls to
+Calling the wrapper function (`f()`) will defer calls to
 the wrapped function (`fetch()`) as needed to limit the call rate (5
 calls per 1000 milliseconds). The wrapper function returns a
 Javascript Promise whose value is the result of the wrapped function.
@@ -25,8 +25,8 @@ argument, where completion is determined by converting the returned
 value to a `Promise` (using `Promise.resolve()`) and waiting for it to
 settle.
 
-The strategy of using completion time does mean that every `Promise`
+The strategy of using completion time does requirethat every `Promise`
 returned by the wrapped function should eventually resolve or reject.
 "Zombie" `Promise` instances that never settle will eventually clog
 the throttle queue. This can generally be addressed by adding a
-timeout, e.g. with `Promise.race()`.
+timeout to the wrapped function.
