@@ -17,7 +17,6 @@ test('wrapping', function(t) {
 
   // Wrap a function returning a Promise that resolves.
   throttle(function(value) {
-    console.log('returning Promise.resolve');
     return Promise.resolve(value);
   }, 1, 1000)('foo').then((value) => {
     t.equal(value, 'foo');

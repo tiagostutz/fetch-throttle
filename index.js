@@ -14,12 +14,9 @@ module.exports = function(f, calls, milliseconds) {
   var inflight = 0;
   
   var processQueue = function() {
-    if (!queue.length)
-      return;
-
     // Remove old complete entries.
     var now = Date.now();
-    while (complete.length && complete[0] < now - milliseconds)
+    while (complete.length && complete[0] <= now - milliseconds)
       complete.shift();
 
     // Make calls from the queue that fit within the limit.
@@ -38,18 +35,14 @@ module.exports = function(f, calls, milliseconds) {
         --inflight;
         complete.push(Date.now());
 
-        if (queue.length && complete.length === 1) {
-          // console.log('timeout in ' + milliseconds);
+        if (queue.length && complete.length === 1)
           setTimeout(processQueue, milliseconds);
-        }
       });
     }
 
     // Check the queue on the next expiration.
-    if (queue.length && complete.length) {
-      // console.log('timeout in ' + (complete[0] + milliseconds - now));
+    if (queue.length && complete.length)
       setTimeout(processQueue, complete[0] + milliseconds - now);
-    }
   };
   
   return function() {
