@@ -1,13 +1,13 @@
 {
-  "name": "promise-throttle",
+  "name": "fetch-throttle",
   "version": "0.1.0",
   "description": "Wrap a function returning a Promise, capping the call rate.",
   "main": "index.js",
   "scripts": {
     "test": "ls test/test-*.js | xargs -n 1 node"
   },
-  "author": "Roy Hashimoto",
-  "license": "Apache-2.0",
+  "author": "Tiago Stutz",
+  "license": "MIT",
   "devDependencies": {
     "tape": "^4.6.0"
   }
